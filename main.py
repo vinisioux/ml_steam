@@ -19,6 +19,25 @@ df_steam['alvo'] = df_steam['name']
 
 # Tratamento de dados qualitativos
 
+categories = []
+
+splitCategories = lambda x: categories.append(x.split(';'))
+
+df_steam['categories'].apply(splitCategories)
+
+
+flat_list = [item for sublist in categories for item in sublist]
+
+listCategories = set(flat_list)
+
+for i in listCategories:
+    df_steam[i] = 0
+
+
+#def teste(x):
+    
+    
+
 categoryExists = lambda x: 1 if(newCategory.lower() in x.lower()) else 0
 df_steam['pre_categories'] = df_steam['categories'].apply(categoryExists)
 
