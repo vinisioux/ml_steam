@@ -18,3 +18,5 @@ def cria_categoria(categorias):
 df_steam['categories'].apply(cria_categoria)
 
 df = pd.DataFrame(dados_categoria, columns=listCategories)
+
+pd.concat([df_steam, df], axis=1, join='inner').tail()
