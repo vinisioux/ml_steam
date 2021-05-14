@@ -1,0 +1,20 @@
+categories = []
+df_steam['categories'].apply(lambda x: categories.append(x.split(';')))
+flat_list = [item for sublist in categories for item in sublist]
+
+listCategories = list(set(flat_list))
+
+dados_categoria = {}
+for categoria in listCategories:
+    dados_categoria[categoria] = []
+
+def cria_categoria(categorias):
+    for categoria in listCategories:
+        if(categoria in categorias):
+            dados_categoria[categoria].append(1)
+        else:
+            dados_categoria[categoria].append(0)
+    
+df_steam['categories'].apply(cria_categoria)
+
+df = pd.DataFrame(dados_categoria, columns=listCategories)
