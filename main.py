@@ -1,91 +1,131 @@
 import pandas as pd
-from pandas_profiling import ProfileReport
-import numpy as np
 from sklearn.neighbors import NearestNeighbors
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+import json
 
 df_steam = pd.read_csv('C:\\Users\\sioux\\Documents\\projects\\facul\\estudo_para_ac\\ac\\steam.csv')
-
-#relatorio = ProfileReport(df_steam)
-#relatorio.to_file('C:\\Users\\sioux\\Documents\\projects\\facul\\estudo_para_ac\\ac\\steam_rel.html')
-
-newCategory = 'Single-Player'
-newGenre = 'Action'
-newTags = 'FPS'
-
-# Feature alvo
-df_steam['alvo'] = df_steam['name'] 
+df_steam.drop(['english', 'release_date', 'developer', 'publisher', 'platforms', 'required_age', 'achievements', 'average_playtime', 'median_playtime', 'owners', 'price'], axis=1, inplace=True)
 
 # Tratamento de dados qualitativos
 
+# categories
 categories = []
-
-splitCategories = lambda x: categories.append(x.split(';'))
-
-df_steam['categories'].apply(splitCategories)
-
-
+df_steam['categories'].apply(lambda x: categories.append(x.split(';')))
 flat_list = [item for sublist in categories for item in sublist]
 
-listCategories = set(flat_list)
+listCategories = list(set(flat_list))
 
-for i in listCategories:
-    df_steam[i] = 0
+dados_categoria = {}
+for categoria in listCategories:
+    dados_categoria[categoria] = []
 
-
-#def teste(x):
+def cria_categoria(categorias):
+    for categoria in listCategories:
+        if(categoria in categorias):
+            dados_categoria[categoria].append(1)
+        else:
+            dados_categoria[categoria].append(0)
     
+df_steam['categories'].apply(cria_categoria)
+
+df_categories = pd.DataFrame(dados_categoria, columns=listCategories)
+
+df_steam = pd.concat([df_steam, df_categories], axis=1, join='inner')
+
+## categories
+##################################################
+# genres
+
+genres = []
+df_steam['genres'].apply(lambda x: genres.append(x.split(';')))
+flat_list = [item for sublist in genres for item in sublist]
+
+listGenres = list(set(flat_list))
+
+dados_genre = {}
+for genre in listGenres:
+    dados_genre[genre] = []
+
+def cria_genre(genres):
+    for genre in listGenres:
+        if(genre in genres):
+            dados_genre[genre].append(1)
+        else:
+            dados_genre[genre].append(0)
     
+df_steam['genres'].apply(cria_genre)
 
-categoryExists = lambda x: 1 if(newCategory.lower() in x.lower()) else 0
-df_steam['pre_categories'] = df_steam['categories'].apply(categoryExists)
+df_genres = pd.DataFrame(dados_genre, columns=listGenres)
 
-genreExists = lambda x: 1 if(newGenre.lower() in x.lower()) else 0
-df_steam['pre_genre'] = df_steam['genres'].apply(genreExists)
+df_steam = pd.concat([df_steam, df_genres], axis=1, join='inner')
 
-tagsExists = lambda x: 1 if(newTags.lower() in x.lower()) else 0
-df_steam['pre_steamspy_tags'] = df_steam['steamspy_tags'].apply(tagsExists)
+## genres
+##################################################
+# tags
+tags = []
+df_steam['steamspy_tags'].apply(lambda x: tags.append(x.split(';')))
+flat_list = [item for sublist in tags for item in sublist]
+
+listTags = list(set(flat_list))
+
+dados_tags = {}
+for tag in listTags:
+    dados_tags[tag] = []
+
+def cria_tag(tags):
+    for tag in listTags:
+        if(tag in tags):
+            dados_tags[tag].append(1)
+        else:
+            dados_tags[tag].append(0)
+    
+df_steam['steamspy_tags'].apply(cria_tag)
+
+df_tags = pd.DataFrame(dados_tags, columns=listTags)
+
+df_steam = pd.concat([df_steam, df_tags], axis=1, join='inner')
+
+## tags
+##################################################
+   
+
+df_final = df_steam[df_steam.columns.difference([
+    'appid',
+    'name', 
+    'categories', 
+    'genres', 
+    'steamspy_tags', 
+    'positive_ratings', 
+    'negative_ratings'
+])]
 
 
-df_final = df_steam[[
-'alvo',
-'pre_categories',
-'pre_genre',
-'pre_steamspy_tags',
-]]
+# KNN
 
-# Demonstrar correlacoes
+X = df_final.values
 
-df_steam.corr()
 
-# Separar dados Treino e Teste
-
-y = df_final['alvo']
-X = df_final[['pre_categories',
-'pre_genre',
-'pre_steamspy_tags']].values
-
-# knn
-
-nbrs = NearestNeighbors(n_neighbors=7, algorithm='ball_tree').fit(X)
+nbrs = NearestNeighbors(n_neighbors=11, algorithm='ball_tree').fit(X)
 distancias, indices = nbrs.kneighbors(X)
 
-game = 8000
+game = 12565
 
-print(X[game])
-print(distancias[game])
-print(indices[game])
-print('media distancia: ', np.mean(distancias))
-print('mediana distancia: ', np.median(distancias))
-
-y_parecidos = []
+games_parecidos = []
 
 for parecido in indices[game]:
-    print(parecido, ' : ', y[parecido])
-    if(parecido != game):
-        y_parecidos.append(y[parecido])
+       
+    newGame = {
+        'name': df_steam.iloc[parecido]['name'],
+        'categories': df_steam.iloc[parecido]['categories'],
+        'genres': df_steam.iloc[parecido]['genres'],
+        'steamspy_tags': df_steam.iloc[parecido]['steamspy_tags'],
+        'positive_ratings': int(df_steam.iloc[parecido]['positive_ratings']),
+        'negative_ratings': int(df_steam.iloc[parecido]['negative_ratings'])
+    }
     
-#print('vai pagar? ', np.bincount(y_parecidos).argmax())
-
-
+    convertNewGameToJson = json.dumps(newGame)
+    loadNewGameJson = json.loads(convertNewGameToJson)
+    
+    if(parecido != game):
+        games_parecidos.append(loadNewGameJson)
+    
+print(games_parecidos)
