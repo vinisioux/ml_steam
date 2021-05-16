@@ -103,11 +103,19 @@ df_final = df_steam[df_steam.columns.difference([
 
 X = df_final.values
 
-
 nbrs = NearestNeighbors(n_neighbors=11, algorithm='ball_tree').fit(X)
 distancias, indices = nbrs.kneighbors(X)
 
-game = 12565
+def returnGameIndex(name):
+    for i, row in df_steam.iterrows():
+        if (name.lower() == row['name'].lower()):
+            return i
+    else:
+        return 'Jogo nao encontrado'
+    
+game = returnGameIndex('among us')
+
+print(game)
 
 games_parecidos = []
 
