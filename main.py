@@ -61,7 +61,7 @@ df_steam = pd.concat([df_steam, df_genres], axis=1, join='inner')
 ## genres
 ##################################################
 # tags
-'''
+
 tags = []
 df_steam['steamspy_tags'].apply(lambda x: tags.append(x.split(';')))
 flat_list = [item for sublist in tags for item in sublist]
@@ -84,7 +84,7 @@ df_steam['steamspy_tags'].apply(cria_tag)
 df_tags = pd.DataFrame(dados_tags, columns=listTags)
 
 df_steam = pd.concat([df_steam, df_tags], axis=1, join='inner')
-'''
+
 ## tags
 ##################################################
    
