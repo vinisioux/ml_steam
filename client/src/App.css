@@ -66,7 +66,7 @@ td {
   font-weight: 600;
   padding: 1.2rem 1.5rem;
   text-align: center;
-  background: var(--gray-50);
+  background: var(--white);
   color: var(--black);
 }
 

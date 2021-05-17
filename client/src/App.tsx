@@ -7,9 +7,9 @@ import { toast } from "react-toastify";
 
 type GameState = {
   name: string;
-  categories: string;
-  genres: string;
-  steamspy_tags: string;
+  categories: string[];
+  genres: string[];
+  steamspy_tags: string[];
   positive_ratings: number;
   negative_ratings: number;
 };
@@ -48,7 +48,18 @@ export function App() {
       return;
     }
 
-    setGames(response.data.data.games);
+    const gamesData = response.data.data.games.map((game: any) => {
+      return {
+        name: game.name,
+        categories: game.categories.split(";"),
+        genres: game.genres.split(";"),
+        steamspy_tags: game.steamspy_tags.split(";"),
+        positive_ratings: game.positive_ratings,
+        negative_ratings: game.negative_ratings,
+      };
+    });
+
+    setGames(gamesData);
 
     setIsLoading(false);
   }
@@ -79,7 +90,7 @@ export function App() {
               <tr>
                 <th>NOME</th>
                 <th>CATEGORIAS</th>
-                <th>GENEROS</th>
+                <th>GÊNEROS</th>
                 <th>TAGS</th>
                 <th className="plus-icon">
                   <FiPlus size={25} color="#43ff32" />
@@ -94,9 +105,9 @@ export function App() {
                 return (
                   <tr key={game.name}>
                     <td>{game.name}</td>
-                    <td>{game.categories}</td>
-                    <td>{game.genres}</td>
-                    <td>{game.steamspy_tags}</td>
+                    <td>{game.categories.join(", ")}</td>
+                    <td>{game.genres.join(", ")}</td>
+                    <td>{game.steamspy_tags.join(", ")}</td>
                     <td>{game.positive_ratings}</td>
                     <td>{game.negative_ratings}</td>
                   </tr>
