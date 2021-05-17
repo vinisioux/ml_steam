@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 import json
 
-df_steam = pd.read_csv('C:\\Users\\sioux\\Documents\\projects\\facul\\estudo_para_ac\\ac\\steam.csv')
+df_steam = pd.read_csv('https://raw.githubusercontent.com/vinisioux/steam_dataset/main/steam.csv')
 df_steam.drop(['english', 'release_date', 'developer', 'publisher', 'platforms', 'required_age', 'achievements', 'average_playtime', 'median_playtime', 'owners', 'price'], axis=1, inplace=True)
 
 # Tratamento de dados qualitativos

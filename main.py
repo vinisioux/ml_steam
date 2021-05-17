@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 import json
 
-df_steam = pd.read_csv('C:\\Users\\sioux\\Documents\\projects\\facul\\estudo_para_ac\\ac\\steam.csv')
+df_steam = pd.read_csv('https://raw.githubusercontent.com/vinisioux/steam_dataset/main/steam.csv')
 df_steam.drop(['english', 'release_date', 'developer', 'publisher', 'platforms', 'required_age', 'achievements', 'average_playtime', 'median_playtime', 'owners', 'price'], axis=1, inplace=True)
 
 # Tratamento de dados qualitativos
@@ -61,6 +61,7 @@ df_steam = pd.concat([df_steam, df_genres], axis=1, join='inner')
 ## genres
 ##################################################
 # tags
+'''
 tags = []
 df_steam['steamspy_tags'].apply(lambda x: tags.append(x.split(';')))
 flat_list = [item for sublist in tags for item in sublist]
@@ -83,7 +84,7 @@ df_steam['steamspy_tags'].apply(cria_tag)
 df_tags = pd.DataFrame(dados_tags, columns=listTags)
 
 df_steam = pd.concat([df_steam, df_tags], axis=1, join='inner')
-
+'''
 ## tags
 ##################################################
    
